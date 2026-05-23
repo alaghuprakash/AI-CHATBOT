@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axis AI Workbench | Professional AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for Math Equations -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Mermaid.js for Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <i data-lucide="cpu" class="icon-brand"></i>
+                    </div>
+                    <div class="brand-info">
+                        <span class="brand-name">AXIS AI</span>
+                        <span class="brand-subtitle">ENGINEERING WORKBENCH</span>
+                    </div>
+                </div>
+                <button class="icon-btn close-sidebar-btn" id="closeSidebarBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-action">
+                <button class="btn btn-primary btn-block" id="newSessionBtn">
+                    <i data-lucide="plus" class="btn-icon"></i>
+                    New Session
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-label">Conversations</div>
+                <div class="sessions-list" id="sessionsList">
+                    <!-- Dynamic session list -->
+                </div>
+                
+                <div class="nav-label mt-24">Configuration</div>
+                <div class="config-section">
+                    <div class="nav-item" id="openSettingsBtn">
+                        <i data-lucide="settings" class="nav-icon"></i>
+                        <span>AI Engine Settings</span>
+                        <span class="badge" id="keyBadge">No Key</span>
+                    </div>
+                    <div class="nav-item" id="themeToggle">
+                        <i data-lucide="sun" class="nav-icon" id="themeIcon"></i>
+                        <span id="themeText">Light Mode</span>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-status">
+                    <div class="status-indicator online"></div>
+                    <div class="status-info">
+                        <span class="status-name" id="selectedModelLabel">gemini-2.5-flash</span>
+                        <span class="status-desc" id="statusMessage">Standby</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workbench -->
+        <main class="workbench">
+            <!-- Header -->
+            <header class="workbench-header">
+                <div class="header-left">
+                    <button class="icon-btn menu-btn" id="menuBtn">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div class="session-info">
+                        <h1 class="session-title" id="activeSessionTitle">New Session</h1>
+                        <span class="session-meta">Active Workspace: /AI CHATBOT</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-header" id="exportPdfBtn" title="Export current session as PDF">
+                        <i data-lucide="file-down"></i>
+                        <span>Export PDF</span>
+                    </button>
+                    <button class="btn-header" id="exportMdBtn" title="Export current session as Markdown">
+                        <i data-lucide="download"></i>
+                        <span>Markdown</span>
+                    </button>
+                    <button class="btn-header toggle-utils-btn" id="toggleUtilsBtn" title="Toggle Sidebar Utilities">
+                        <i data-lucide="layout-sidebar-right"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Chat / Content Area -->
+            <div class="thread-container" id="threadContainer">
+                
+                <!-- Dashboard Welcome View (shown when active session has no messages) -->
+                <div class="dashboard" id="dashboardView">
+                    <div class="dashboard-hero">
+                        <div class="hero-logo">
+                            <i data-lucide="cpu" class="pulse-icon"></i>
+                        </div>
+                        <h2 class="hero-title">Axis Advanced AI Engine</h2>
+                        <p class="hero-subtitle">Fully integrated multi-tool workspace powered by Gemini AI. Get assistance with structural calculations, chemical analysis, dynamic charting, code sandboxing, and technical reports.</p>
+                        
+                        <!-- Optional Gemini configuration banner -->
+                        <div class="alert-box warning" id="apiKeyAlert" style="display: none;">
+                            <i data-lucide="info" class="alert-icon" style="color: var(--primary);"></i>
+                            <div class="alert-content" style="color: var(--text-primary);">
+                                <strong>Gemini Integration:</strong> You are currently running on our Free AI Engine. To upgrade to Google Gemini 2.5, configure your key in settings.
+                                <button class="btn btn-small btn-secondary mt-8" id="configureKeyQuickBtn">Configure Gemini Key</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="prompt-card" data-prompt="Analyze the structural stress and deflection of a simply supported steel I-beam (Length = 6m, Point Load = 50kN at center, E = 200 GPa, I = 80e-6 m^4). Provide formulas and values.">
+                            <div class="card-icon"><i data-lucide="activity"></i></div>
+                            <h3>Beam Load Analysis</h3>
+                            <p>Calculate deflections, bending moments, and fiber stress with LaTeX equations.</p>
+                        </div>
+                        <div class="prompt-card" data-prompt="Generate a dataset comparing the mechanical properties (Yield Strength, Ultimate Strength, Density, and Thermal Expansion) of Structural Steel, Aluminum 6061-T6, Titanium Grade 5, and Carbon Fiber. Format it in a JSON block marked with type: 'chart' so we can plot it.">
+                            <div class="card-icon"><i data-lucide="bar-chart-2"></i></div>
+                            <h3>Compare Materials Chart</h3>
+                            <p>Generate a materials dataset and visualize it instantly in an interactive chart.</p>
+                        </div>
+                        <div class="prompt-card" data-prompt="Create a Mermaid flowchart diagram illustrating the complete workflow of a combined-cycle gas turbine system (compressor, combustor, gas turbine, heat recovery generator, steam turbine, condenser). Make sure it renders in a mermaid block.">
+                            <div class="card-icon"><i data-lucide="git-branch"></i></div>
+                            <h3>Turbine Cycle Diagram</h3>
+                            <p>Visualize complex system components and thermodynamic cycles via Mermaid flowcharts.</p>
+                        </div>
+                        <div class="prompt-card" data-prompt="Write an interactive HTML and JavaScript simulator that calculates the Reynolds Number for fluid flow in a pipe, adjusting dynamically for pipe diameter, fluid velocity, density, and viscosity, showing if the flow is laminar, transitional, or turbulent. Use a clean card style layout.">
+                            <div class="card-icon"><i data-lucide="code-2"></i></div>
+                            <h3>Reynolds Simulator</h3>
+                            <p>Write simulation code and instantly run it in our integrated sandbox environment.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages container -->
+                <div class="messages-list" id="messageContainer">
+                    <!-- Dynamic Messages -->
+                </div>
+            </div>
+
+            <!-- Input Console -->
+            <section class="input-console">
+                <div class="console-box">
+                    <div class="input-row">
+                        <textarea id="userInput" placeholder="Ask a technical question, paste calculations, or query material data..." rows="1"></textarea>
+                        <button class="voice-btn" id="voiceBtn" title="Start voice typing">
+                            <i data-lucide="mic"></i>
+                        </button>
+                    </div>
+                    <div class="console-toolbar">
+                        <div class="toolbar-left">
+                            <button class="tool-btn" id="insertFormulaBtn" title="Insert standard math notation helper"><i data-lucide="sigma"></i></button>
+                            <button class="tool-btn" id="insertCodeBtn" title="Insert code block syntax"><i data-lucide="code"></i></button>
+                            <button class="tool-btn" id="clearChatBtn" title="Clear current session messages"><i data-lucide="trash-2"></i></button>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="submit-btn" id="sendBtn">
+                                <span>Run Analysis</span>
+                                <i data-lucide="arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="console-status-bar" id="consoleStatusBar">
+                    <i data-lucide="check-circle" class="status-icon" id="connStatusIcon"></i>
+                    <span id="connStatusText">Running in local simulation mode (API key not set)</span>
+                </div>
+            </section>
+        </main>
+
+        <!-- Right Utilities Panel -->
+        <aside class="utils-panel" id="utilsPanel">
+            <div class="panel-tabs">
+                <button class="tab-btn active" data-tab="converter">Converter</button>
+                <button class="tab-btn" data-tab="reference">Quick Ref</button>
+                <button class="tab-btn" data-tab="sandbox">Sandbox</button>
+            </div>
+            
+            <div class="tab-content active" id="tab-converter">
+                <div class="util-card">
+                    <h3 class="util-title"><i data-lucide="refresh-cw"></i> Real-time Unit Converter</h3>
+                    
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="convCategory" class="form-control">
+                            <option value="pressure">Pressure & Stress</option>
+                            <option value="force">Force</option>
+                            <option value="temp">Temperature</option>
+                            <option value="length">Length</option>
+                            <option value="mass">Mass</option>
+                            <option value="energy">Energy & Work</option>
+                        </select>
+                    </div>
+                    
+                    <div class="conversion-grid">
+                        <div class="form-group">
+                            <label>From</label>
+                            <input type="number" id="convFromValue" value="1" class="form-control">
+                            <select id="convFromUnit" class="form-control mt-4">
+                                <!-- Dynamic options -->
+                            </select>
+                        </div>
+                        
+                        <div class="conv-arrow">
+                            <i data-lucide="arrow-right-left"></i>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>To</label>
+                            <input type="number" id="convToValue" value="0" readonly class="form-control readonly-input">
+                            <select id="convToUnit" class="form-control mt-4">
+                                <!-- Dynamic options -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="util-card">
+                    <h3 class="util-title"><i data-lucide="calculator"></i> Dynamic Math Solver</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Type any math expression (e.g. `sin(45 deg) * 200` or `sqrt(144) + log(100)`):</p>
+                    <div class="form-group">
+                        <input type="text" id="mathInput" placeholder="2 * pi * 50" class="form-control">
+                    </div>
+                    <div class="math-result-box" id="mathResult">
+                        <span class="math-result-label">Result:</span>
+                        <span class="math-result-val" id="mathResultVal">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-reference">
+                <div class="util-card select-card">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="refSearch" placeholder="Search constants & formulas...">
+                    </div>
+                </div>
+                
+                <div class="ref-results" id="refResults">
+                    <!-- Search Results will populate here -->
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-sandbox">
+                <div class="util-card full-height-card">
+                    <h3 class="util-title"><i data-lucide="play-circle"></i> Output Sandbox</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">Run generated HTML/CSS/JS snippets in an isolated, secure frame.</p>
+                    <div class="sandbox-actions">
+                        <button class="btn btn-small" id="sandboxRunBtn"><i data-lucide="play"></i> Run Code</button>
+                        <button class="btn btn-small btn-secondary" id="sandboxClearBtn"><i data-lucide="rotate-ccw"></i> Reset</button>
+                    </div>
+                    <div class="sandbox-container">
+                        <iframe id="sandboxIframe" sandbox="allow-scripts allow-modals"></iframe>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- AI Engine Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i data-lucide="sliders"></i> AI Engine Configuration</h2>
+                <button class="icon-btn close-modal-btn" id="closeSettingsModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="apiKeyInput">Gemini API Key</label>
+                    <div class="input-with-action">
+                        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="form-control">
+                        <button class="btn btn-secondary" id="toggleApiKeyVisBtn">
+                            <i data-lucide="eye" id="keyVisIcon"></i>
+                        </button>
+                    </div>
+                    <p class="form-help">
+                        Your key is stored <strong>locally in your browser</strong> and never sent to any server except Google's Gemini API directly. 
+                        Get a free key from <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio <i data-lucide="external-link" style="width:12px; height:12px; display:inline;"></i></a>.
+                    </p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modelSelect">Select Model</label>
+                    <select id="modelSelect" class="form-control">
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Ultra-fast, excellent for general use)</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro (State-of-the-art reasoning, math & coding)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="systemPromptInput">System Role / Instructions</label>
+                    <textarea id="systemPromptInput" rows="3" class="form-control" placeholder="E.g., You are an expert aerospace and structural engineer assistant..."></textarea>
+                    <p class="form-help">Sets the default behavior and persona of the assistant.</p>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <label>Creativity (Temperature)</label>
+                        <span id="tempValue">0.2</span>
+                    </div>
+                    <input type="range" id="tempInput" min="0.0" max="2.0" step="0.1" value="0.2" class="slider-control">
+                    <div class="slider-labels">
+                        <span>Precise (Math/Code)</span>
+                        <span>Balanced</span>
+                        <span>Creative (Brainstorm)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSettingsBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveSettingsBtn">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Sandbox Modal (Full Screen View) -->
+    <div class="modal-overlay" id="sandboxModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h2><i data-lucide="terminal"></i> Code Simulator Execution</h2>
+                <button class="icon-btn close-modal-btn" id="closeSandboxModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="height: 60vh;">
+                <iframe id="modalSandboxIframe" sandbox="allow-scripts allow-modals" style="width:100%; height:100%; border:1px solid var(--border-light); border-radius: 8px; background: white;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Scripts -->
+    <script src="app.js"></script>
+    <script>
+        // Ensure Lucide icons render after DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
